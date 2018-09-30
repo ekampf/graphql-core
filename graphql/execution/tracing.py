@@ -5,7 +5,7 @@ PY37 = sys.version_info[0:2] >= (3, 7)
 
 
 class TracingMiddleware(object):
-    DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
+    DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
     def __init__(self, enabled):
         self.enabled = enabled
@@ -43,11 +43,11 @@ class TracingMiddleware(object):
 
     @property
     def start_time_str(self):
-        return time.strftime(self.DATETIME_FORMAT, time.gmtime(self.start_time/1000))
+        return time.strftime(self.DATETIME_FORMAT, time.gmtime(self.start_time / 1000))
 
     @property
     def end_time_str(self):
-        return time.strftime(self.DATETIME_FORMAT, time.gmtime(self.end_time/1000))
+        return time.strftime(self.DATETIME_FORMAT, time.gmtime(self.end_time / 1000))
 
     @property
     def duration(self):
@@ -67,9 +67,7 @@ class TracingMiddleware(object):
                 startOffset=self.parsing_start_time - self.start_time,
                 duration=self.parsing_end_time - self.parsing_start_time,
             ),
-            execution=dict(
-                resolvers=self.resolver_stats
-            )
+            execution=dict(resolvers=self.resolver_stats),
         )
 
         if self.validation_start_time and self.validation_end_time:

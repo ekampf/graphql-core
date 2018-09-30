@@ -22,7 +22,7 @@ if False:  # flake8: noqa
 def execute_and_validate(
     schema,  # type: GraphQLSchema
     document_ast,  # type: Document
-    tracing_middleware, # type: TracingMiddleware
+    tracing_middleware,  # type: TracingMiddleware
     *args,  # type: Any
     **kwargs  # type: Any
 ):
@@ -78,7 +78,11 @@ class GraphQLCoreBackend(GraphQLBackend):
                 document_string=document_string,
                 document_ast=document_ast,
                 execute=partial(
-                    execute_and_validate, schema, document_ast, self.tracing_middleware, **self.execute_params
+                    execute_and_validate,
+                    schema,
+                    document_ast,
+                    self.tracing_middleware,
+                    **self.execute_params
                 ),
             )
         finally:

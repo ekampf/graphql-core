@@ -30,5 +30,5 @@ __all__ = [
     "ResolveInfo",
     "MiddlewareManager",
     "middlewares",
-    "tracing"
+    "tracing",
 ]
