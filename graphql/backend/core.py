@@ -55,7 +55,7 @@ class GraphQLCoreBackend(GraphQLBackend):
     graphql executor"""
 
     def __init__(self, executor=None, tracing=False):
-        # type: (Optional[Any]) -> None
+        # type: (Optional[Any], bool) -> None
         self.execute_params = {"executor": executor}
         self.tracing_middleware = TracingMiddleware(tracing)
 
