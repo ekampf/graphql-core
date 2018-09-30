@@ -73,7 +73,6 @@ class GraphQLCoreBackend(GraphQLBackend):
                 ), "The query must be a string"
                 document_ast = parse(document_string)
 
-
             return GraphQLDocument(
                 schema=schema,
                 document_string=document_string,
