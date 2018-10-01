@@ -44,6 +44,8 @@ def execute_and_validate(
         kwargs["middleware"] = middleware
 
     result = execute(schema, document_ast, *args, **kwargs)
+
+    tracing_middleware.end()
     if tracing_middleware.enabled:
         result.extensions["tracing"] = tracing_middleware.get_tracing_extension_dict()
 
@@ -61,6 +63,8 @@ class GraphQLCoreBackend(GraphQLBackend):
 
     def document_from_string(self, schema, document_string):
         # type: (GraphQLSchema, Union[Document, str]) -> GraphQLDocument
+
+        self.tracing_middleware.start()
 
         self.tracing_middleware.parsing_start()
         try:

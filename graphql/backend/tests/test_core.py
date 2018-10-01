@@ -25,6 +25,21 @@ def test_core_backend():
     assert result.data == {"hello": "World"}
 
 
+def test_core_backend_with_tracing():
+    # type: () -> None
+    """Sample pytest test function with the pytest fixture as an argument."""
+    backend = GraphQLCoreBackend(tracing=True)
+    assert isinstance(backend, GraphQLBackend)
+    document = backend.document_from_string(schema, "{ hello }")
+    assert isinstance(document, GraphQLDocument)
+    result = document.execute()
+    assert not result.errors
+    assert result.data == {"hello": "World"}
+
+    tracing_data = result.extensions["tracing"]
+    assert bool(tracing_data)
+
+
 def test_backend_is_not_cached_by_default():
     # type: () -> None
     """Sample pytest test function with the pytest fixture as an argument."""

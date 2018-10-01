@@ -43,11 +43,11 @@ class TracingMiddleware(object):
 
     @property
     def start_time_str(self):
-        return time.strftime(self.DATETIME_FORMAT, time.gmtime(self.start_time / 1000))
+        return time.strftime(self.DATETIME_FORMAT, time.gmtime(self.start_time / 1000000000))
 
     @property
     def end_time_str(self):
-        return time.strftime(self.DATETIME_FORMAT, time.gmtime(self.end_time / 1000))
+        return time.strftime(self.DATETIME_FORMAT, time.gmtime(self.end_time / 1000000000))
 
     @property
     def duration(self):
@@ -93,7 +93,7 @@ class TracingMiddleware(object):
                 "parentType": str(info.parent_type),
                 "fieldName": info.field_name,
                 "returnType": str(info.return_type),
-                "startOffset": (time.time() * 1000) - self.start_time,
+                "startOffset": self.now() - self.start_time,
                 "duration": elapsed_ms,
             }
             self.resolver_stats.append(stat)
