@@ -45,7 +45,7 @@ def execute_and_validate(
 
     result = execute(schema, document_ast, *args, **kwargs)
     if tracing_middleware.enabled:
-        result.extensions["tracing"] = tracing_middleware.tracing_dict
+        result.extensions["tracing"] = tracing_middleware.get_tracing_extension_dict()
 
     return result
 

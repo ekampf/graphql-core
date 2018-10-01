@@ -56,8 +56,7 @@ class TracingMiddleware(object):
 
         return self.end_time - self.start_time
 
-    @property
-    def tracing_dict(self):
+    def get_tracing_extension_dict(self):
         result = dict(
             version=1,
             startTime=self.start_time_str,
