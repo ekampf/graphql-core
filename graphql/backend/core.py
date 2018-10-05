@@ -1,4 +1,5 @@
 from functools import partial
+from promise import Promise
 from six import string_types
 
 from ..execution import execute, ExecutionResult
@@ -47,7 +48,13 @@ def execute_and_validate(
 
     tracing_middleware.end()
     if tracing_middleware.enabled:
-        result.extensions["tracing"] = tracing_middleware.get_tracing_extension_dict()
+        if isinstance(result, Promise):
+            def on_resolve(tracing_m, data):
+                data.extension["tracing"] = tracing_m.get_tracing_extension_dict()
+
+            result = Promise.resolve(result).then(partial(on_resolve, tracing_middleware))
+        else:
+            result.extensions["tracing"] = tracing_middleware.get_tracing_extension_dict()
 
     return result
 
