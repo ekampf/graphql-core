@@ -9,6 +9,9 @@ class TracingMiddleware(object):
 
     def __init__(self, enabled):
         self.enabled = enabled
+        self.reset()
+
+    def reset(self):
         self.resolver_stats = list()
         self.start_time = None
         self.end_time = None
@@ -18,6 +21,7 @@ class TracingMiddleware(object):
         self.validation_end_time = None
 
     def start(self):
+        self.reset()
         self.start_time = self.now()
 
     def end(self):
@@ -97,3 +101,5 @@ class TracingMiddleware(object):
                 "duration": elapsed_ms,
             }
             self.resolver_stats.append(stat)
+
+
