@@ -51,6 +51,7 @@ def execute_and_validate(
         if isinstance(result, Promise):
             def on_resolve(tracing_m, data):
                 data.extensions["tracing"] = tracing_m.get_tracing_extension_dict()
+                return data
 
             result = Promise.resolve(result).then(partial(on_resolve, tracing_middleware))
         else:
