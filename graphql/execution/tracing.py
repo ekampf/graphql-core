@@ -1,5 +1,6 @@
 import sys
 import time
+from datetime import datetime
 
 PY37 = sys.version_info[0:2] >= (3, 7)
 
@@ -47,11 +48,13 @@ class TracingMiddleware(object):
 
     @property
     def start_time_str(self):
-        return time.strftime(self.DATETIME_FORMAT, time.gmtime(self.start_time / 1000000000))
+        start_time_seconds = float(self.start_time / 1000000000)
+        return datetime.fromtimestamp(start_time_seconds).strftime(self.DATETIME_FORMAT)
 
     @property
     def end_time_str(self):
-        return time.strftime(self.DATETIME_FORMAT, time.gmtime(self.end_time / 1000000000))
+        end_time_seconds = float(self.end_time / 1000000000)
+        return datetime.fromtimestamp(end_time_seconds).strftime(self.DATETIME_FORMAT)
 
     @property
     def duration(self):
