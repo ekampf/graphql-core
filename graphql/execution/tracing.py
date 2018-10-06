@@ -1,6 +1,7 @@
 import sys
 import time
 from datetime import datetime
+from functools import partial
 
 PY37 = sys.version_info[0:2] >= (3, 7)
 
@@ -8,12 +9,11 @@ PY37 = sys.version_info[0:2] >= (3, 7)
 class TracingMiddleware(object):
     DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
-    def __init__(self, enabled):
-        self.enabled = enabled
+    def __init__(self):
+        self.resolver_stats = list()
         self.reset()
 
     def reset(self):
-        self.resolver_stats = list()
         self.start_time = None
         self.end_time = None
         self.parsing_start_time = None
@@ -84,16 +84,9 @@ class TracingMiddleware(object):
 
         return result
 
-    def resolve(self, _next, root, info, *args, **kwargs):
-        if not self.enabled:
-            return _next(root, info, *args, **kwargs)
-
-        start = time.time()
-        try:
-            return _next(root, info, *args, **kwargs)
-        finally:
+    def _after_resolve(self, start_time, resolver_stats, info, data):
             end = time.time()
-            elapsed_ms = (end - start) * 1000
+            elapsed_ms = (end - start_time) * 1000
 
             stat = {
                 "path": info.path,
@@ -103,6 +96,18 @@ class TracingMiddleware(object):
                 "startOffset": self.now() - self.start_time,
                 "duration": elapsed_ms,
             }
-            self.resolver_stats.append(stat)
+            resolver_stats.append(stat)
+            return data
+
+    def resolve(self, _next, root, info, *args, **kwargs):
+        start = time.time()
+        on_result_f = partial(self._after_resolve, start, self.resolver_stats, info)
+        return _next(root, info, *args, **kwargs) \
+            .then(on_result_f)
 
 
+class TracingAsyncioMiddleware(TracingMiddleware):
+    def resolve(self, *args, **kwargs):
+        import asyncio
+        result = super().resolve(*args, **kwargs)
+        return asyncio.ensure_future(result)

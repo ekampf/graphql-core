@@ -29,7 +29,8 @@ def execute_and_validate(
 ):
     # type: (...) -> Union[ExecutionResult, Observable]
 
-    tracing_middleware.validation_start()
+    if tracing_middleware:
+        tracing_middleware.validation_start()
     try:
         do_validation = kwargs.get("validate", True)
         if do_validation:
@@ -37,16 +38,17 @@ def execute_and_validate(
             if validation_errors:
                 return ExecutionResult(errors=validation_errors, invalid=True)
     finally:
-        tracing_middleware.validation_end()
+        if tracing_middleware:
+            tracing_middleware.validation_end()
 
-    if tracing_middleware.enabled:
+    if tracing_middleware:
         middleware = kwargs.get("middleware") or []
         middleware.append(tracing_middleware)
         kwargs["middleware"] = middleware
 
     result = execute(schema, document_ast, *args, **kwargs)
 
-    if tracing_middleware.enabled:
+    if tracing_middleware:
         if isinstance(result, Promise):
             def on_resolve(tracing_m, data):
                 tracing_m.end()
@@ -65,17 +67,20 @@ class GraphQLCoreBackend(GraphQLBackend):
     """GraphQLCoreBackend will return a document using the default
     graphql executor"""
 
-    def __init__(self, executor=None, tracing=False):
-        # type: (Optional[Any], bool) -> None
+    def __init__(self, executor=None, tracing_middleware=None):
+        # type: (Optional[Any], TracingMiddleware) -> None
         self.execute_params = {"executor": executor}
-        self.tracing_middleware = TracingMiddleware(tracing)
+        self.tracing_middleware = tracing_middleware
 
     def document_from_string(self, schema, document_string):
         # type: (GraphQLSchema, Union[Document, str]) -> GraphQLDocument
 
-        self.tracing_middleware.start()
+        if self.tracing_middleware:
+            self.tracing_middleware.start()
 
-        self.tracing_middleware.parsing_start()
+        if self.tracing_middleware:
+            self.tracing_middleware.parsing_start()
+
         try:
             if isinstance(document_string, ast.Document):
                 document_ast = document_string
@@ -99,4 +104,5 @@ class GraphQLCoreBackend(GraphQLBackend):
                 ),
             )
         finally:
-            self.tracing_middleware.parsing_end()
+            if self.tracing_middleware:
+                self.tracing_middleware.parsing_end()
