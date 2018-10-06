@@ -46,15 +46,16 @@ def execute_and_validate(
 
     result = execute(schema, document_ast, *args, **kwargs)
 
-    tracing_middleware.end()
     if tracing_middleware.enabled:
         if isinstance(result, Promise):
             def on_resolve(tracing_m, data):
+                tracing_m.end()
                 data.extensions["tracing"] = tracing_m.get_tracing_extension_dict()
                 return data
 
             result = Promise.resolve(result).then(partial(on_resolve, tracing_middleware))
         else:
+            tracing_middleware.end()
             result.extensions["tracing"] = tracing_middleware.get_tracing_extension_dict()
 
     return result
